@@ -1,0 +1,92 @@
+html{
+    height: 100%;
+}
+
+*:focus {
+    outline: none;
+}
+
+body{
+    display: flex;
+    height: 90%;
+    background-color: #1E1E1E;
+    color: #e6e6e6;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    align-items: center;
+    flex-direction: row;
+}
+
+#centerColumn{
+    display: flex;
+    flex: 9;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+#lefColumn{
+    display: flex;
+    flex: 5;
+    height: 70%;
+    align-items: center;
+    flex-direction: column;
+}
+
+#canvases{
+    width: min-content;
+    height: min-content;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#div1{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#spin{
+    position: absolute;
+    cursor: pointer;
+}
+
+#winnerField{
+    margin-top: 5px;
+    align-self: center;
+    text-align: center;
+    border-radius: 20px;
+    font-size: 25pt;
+}
+
+input{
+    border: 3px solid #3a3a3a;
+    border-radius: 15px;
+    min-height: 30px;
+    padding: 0 10px;
+    color: #b72f2f;
+}
+
+#playerList{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#destroyedList{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#destroyedList input::-webkit-search-cancel-button{
+    -webkit-appearance:unset;
+    width: 12px;
+    height: 12px;
+    background-image: url("./images/ico.png");
+    background-size: 12px 12px;
+}
