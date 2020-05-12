@@ -47,6 +47,7 @@ params = getParameterByName("checked", window.location.href);
 
 $("#checkbox1").prop("checked", params === null ? true : params === 'true');
 
+$("#text0").val("");
 drawSpin();
 
 function drawSpin() {
@@ -58,19 +59,19 @@ function drawSpin() {
     sctx.stroke();
 
     sctx.fillStyle = "orange"
-    sctx.font = "bold 20px Courier New";
+    sctx.font = "bold 20px Comic Sans MS";
 
     sctx.beginPath();
     sctx.strokeStyle = "#3a3a3a";
     sctx.arc(cW, cH, wheelRadius / 6, 0, 2 * Math.PI);
-    sctx.lineWidth = 3;
+    sctx.lineWidth = 5;
     sctx.moveTo(cW + wheelRadius - 40, cH);
     sctx.lineTo(cW + wheelRadius + 20, cH + 15);
     sctx.lineTo(cW + wheelRadius + 20, cH - 15);
     sctx.lineTo(cW + wheelRadius - 40, cH);
     sctx.stroke();
     sctx.fill();
-    sctx.lineWidth = 2;
+    sctx.lineWidth = 5;
     sctx.fillStyle = "black";
     sctx.strokeStyle = "white";
     sctx.textAlign = "center";
@@ -82,7 +83,7 @@ function drawWheel(players) {
     playerCount = players.length;
     let angle = (2 / playerCount) * Math.PI;
     ctx.clearRect(0, 0, W, H);
-    ctx.font = "bold " + textSize + "px Courier New";
+    ctx.font = "bold " + textSize + "px Comic Sans MS";
     ctx.strokeStyle = "black";
 
     for (let i = 0; i < playerCount; i++) {
@@ -100,7 +101,7 @@ function drawWheel(players) {
             ctx.translate(cW, cH);
             let ra = angle * (i + 0.5);
             ctx.rotate(ra);
-            ctx.lineWidth = 8;
+            ctx.lineWidth = 5;
             ctx.fillStyle = "black";
             ctx.strokeStyle = "white";
             ctx.textAlign = "center";
@@ -147,21 +148,21 @@ function getWinner(value) {
                 $("#destroyedList").append(getNewItem(desPlayers[desPlayers.length-1].id, 1, winnder));
                 drawWheel(players)
                 if (players.length == 1) {
-                    config = {
-                        MBOK: true,
-                        theme: 'dark'
-                    };
-                    showConfirm("Победил ", players[0].text, config);
+                    // config = {
+                    //     MBOK: true,
+                    //     theme: 'dark'
+                    // };
+                    // showConfirm("Победил ", players[0].text, config);
                 }
             }, 800);
         }
         else {
             setTimeout(function () {
-                config = {
-                    MBOK: true,
-                    theme: 'dark'
-                };
-                showConfirm("Победил ", winnder, config);
+                // config = {
+                //     MBOK: true,
+                //     theme: 'dark'
+                // };
+                // showConfirm("Победил ", winnder, config);
             }, 800);
         }
     }
@@ -215,9 +216,18 @@ function textChanged(id){
 }
 
 function keyPressed(id, event) {
+    let rows = $("#playerList input");
+    let index = 0;
     newItem(id);
-    if(event.code == "Enter")
-        $(`#text${id + 1}`).focus();
+    if(event.code == "Enter"){
+        for (let i = 0; i < rows.length; i++) {
+            if($(rows[i]).attr('id') == `text${id}`){
+                index = i+1;
+                break;
+            }
+        }
+        $(rows[index]).focus();
+    }
 }
 
 function newItem(id){
