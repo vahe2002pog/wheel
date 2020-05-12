@@ -10,13 +10,16 @@
 <body>
     <div id="lefColumn">
         <div style="display:flex; justify-content: center; align-items: center; flex-direction: row;">
-            <input type="checkbox" id="checkbox1"> <label for="checkbox1">На выбивание</label>
+            <input type="checkbox" checked id="checkbox1"> <label for="checkbox1">На выбивание</label>
         </div>
-        <h2>Игроки</h2>
+        <h2 id="title">Игроки</h2>
         <div id="playerList">
-                <input id="text0" class="nicksInput" onchange="textChanged(0, event)" onkeydown="textChanged(0, event)" onsearch="onClear(0, event)" type="search">
+            <div class="playerItem" id="playerItem0">
+                <input id="text0" class="nicksInput" onchange="textChanged(0)" onkeydown="keyPressed(0, event)" type="text">
+                <span class="inputButton cross" onclick="removeByIndex(0, 0)"></span>
+            </div>
         </div>
-        <h2>Проигравшие</h2>
+        <h2>Выбившие</h2>
         <div id="destroyedList"></div>
     </div>
 
@@ -26,7 +29,7 @@
                 <canvas id="wheel" ></canvas>
                 <canvas id="spin" onclick="spinButton()" ></canvas>
             </div>
-            <input id="winnerField" type="text" readonly>
+            <span id="winnerField"></span>
         </div>
     </div>
 

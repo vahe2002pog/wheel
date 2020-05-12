@@ -1,7 +1,7 @@
 let canvas = document.getElementById("wheel");
 let ctx = canvas.getContext("2d");
-const W = 600, H = 600;
-const wheelRadius = 280;
+const W = document.getElementById("canvases").offsetHeight, H = W;
+const wheelRadius = (W - 40) / 2;
 let textSize = 20;
 let cW = W / 2, cH = H / 2
 ctx.canvas.width = W;
@@ -14,8 +14,38 @@ let winnerField = document.getElementById("winnerField");
 let interval, randNumber = 0;
 let playerCount, rowCount;
 let players = [];
-let colors = [];
-ended = true;
+let desPlayers = [];
+let autoIncriment = 1;
+let ended = true;
+let params = getParameterByName("list", window.location.href);
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+if(params != null){
+    params = params.split('$_$');
+    params.forEach((element,index) => {
+        $(`#text${index}`).val(element);
+        keyPressed(index,{code:"null"});
+        textChanged(index);
+    });
+}
+
+params = getParameterByName("title", window.location.href);
+if(params != "null"){
+    $("#title").text(params);
+}
+
+params = getParameterByName("checked", window.location.href);
+
+$("#checkbox1").prop("checked", params === null ? true : params === 'true');
 
 drawSpin();
 
@@ -83,11 +113,12 @@ function drawWheel(players) {
 
 let a = 0;
 function rotate() {
-    let delta = randNumber / 500;
+    let delta = randNumber / 800;
     canvas.style.transform = `rotate(${a}deg)`;
     a += randNumber;
-    randNumber -= delta;
-    if (delta < 0.00005) {
+    if(randNumber > 0.001)
+        randNumber -= delta;
+    if (delta < 0.00001) {
         clearInterval(interval);
         randNumber = 0;
         ended = true;
@@ -98,7 +129,7 @@ function rotate() {
 function spinButton() {
     if (ended && players.length > 1) {
         interval = setInterval(rotate, 1);
-        randNumber = Math.random() * 20 + 5;
+        randNumber = Math.random() * 40 + 10;
         ended = false;
         $("#lefColumn input").prop('disabled', true);
     }
@@ -108,14 +139,14 @@ function getWinner(value) {
     let angle = value - (Math.floor(value / 360) * 360);
     let id = playerCount - Math.floor(angle / (360 / playerCount)) - 1;
     let winnder = players[id].text;
-    winnerField.value = winnder;
-    if(ended){
-        if($("#checkbox1").prop('checked')){
-            setTimeout(function (){
-                $("#destroyedList").append($(`#text${players[id].id}`));
-                players.splice(id, 1);
+    winnerField.innerHTML = winnder;
+    if (ended) {
+        if ($("#checkbox1").prop('checked')) {
+            setTimeout(function () {
+                removeByIndex(players[id].id, 1);
+                $("#destroyedList").append(getNewItem(desPlayers[desPlayers.length-1].id, 1, winnder));
                 drawWheel(players)
-                if(players.length == 1){
+                if (players.length == 1) {
                     config = {
                         MBOK: true,
                         theme: 'dark'
@@ -124,8 +155,8 @@ function getWinner(value) {
                 }
             }, 800);
         }
-        else{
-            setTimeout(function (){
+        else {
+            setTimeout(function () {
                 config = {
                     MBOK: true,
                     theme: 'dark'
@@ -145,60 +176,88 @@ function getRandomColor() {
     return color;
 }
 
-function textChanged(id, event) {
+function getNewItem(id, param = 0, text = ""){
+    let className = ["cross", "arrow"];
+    let methodName = ["removeByIndex", "returnItem"]
+    let div = `
+        <div class="playerItem" id="playerItem${id}">
+            <input id="text${id}" class="nicksInput" onchange="textChanged(${id})" value="${text}" onkeydown="keyPressed(${id}, event)" type="text">
+            <span class="inputButton ${className[param]}" onclick="${methodName[param]}(${id})"></span>
+        </div>`;
+    return div;
+}
+
+function textChanged(id){
+    if (rowCount > 0) {
+        let text = $(`#text${id}`).val();
+        if (text != "") {
+            let r = 0;
+            players.forEach(element => {
+                if (element.id == id) {
+                    element.text = text;
+                }
+                else
+                    r++;
+            });
+            if (r == players.length) {
+                players.push({
+                    id: id,
+                    text: text,
+                    color: getRandomColor()
+                })
+            }
+            drawWheel(players)
+        }
+        else {
+            removeByIndex(id);
+        }
+    }
+}
+
+function keyPressed(id, event) {
+    newItem(id);
+    if(event.code == "Enter")
+        $(`#text${id + 1}`).focus();
+}
+
+function newItem(id){
     let table = $("#playerList");
     let rows = $("#playerList input");
     rowCount = rows.length;
 
     if ($(rows[rowCount - 1]).attr('id') == `text${id}`) {
-        table.append(`
-            <input id="text${id + 1}" class="nicksInput"  onchange="textChanged(${id + 1}, event)" onkeydown="textChanged(${id + 1}, event)" onsearch="onClear(${id + 1})" type="search">
-        `)
+        table.append(getNewItem(autoIncriment));
+        autoIncriment++;
     }
-    if (event.type == "change") {
-        if (rowCount > 0) {
-            let text = $(`#text${id}`).val();
-            if (text != "") {
-                let r = 0;
-                players.forEach(element => {
-                    if (element.id == id) {
-                        element.text = text;
-                    }
-                    else
-                        r++;
-                });
-                if (r == players.length) {
-                    players.push({
-                        id: id,
-                        text: text,
-                        color: getRandomColor()
-                    })
+}
+
+function removeByIndex(id, param = 0) {
+    if($(`#playerList input`).length > 1){
+        $(`#playerItem${id}`).remove();
+        for (let i = 0; i < players.length; i++) {
+            if (players[i].id == id) {
+                if(param != 0){
+                    desPlayers.push(players[i]);
                 }
+                players.splice(i, 1);
                 drawWheel(players)
-            }
-            else {
-                removeByIndex(id);
+                break;
             }
         }
     }
 }
 
-function onClear(id,event) {
-    event.cancel();
-    // if ($(`#text${id}`).val() != "") {
-    //     $(`#text${id + 1}`).focus();
-    // }
-    // else {
-    //     removeByIndex(id);
-    // }
-}
-
-function removeByIndex(id) {
-    $(`#text${id}`).remove();
-    for (let i = 0; i < players.length; i++) {
-        if (players[i].id == id) {
-            players.splice(i, 1);
+function returnItem(id){
+    $(`#playerItem${id}`).remove();
+    for (let i = 0; i < desPlayers.length; i++) {
+        if (desPlayers[i].id == id) {
+            desPlayers[i].id = autoIncriment-1;
+            $(`#text${autoIncriment-1}`).val(desPlayers[i].text);
+            newItem(autoIncriment-1);
+            players.push(desPlayers[i]);
+            desPlayers.splice(i, 1);
             drawWheel(players)
+            break;
         }
     }
 }
